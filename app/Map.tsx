@@ -14,13 +14,10 @@ import Link from "next/link";
 interface Props {
   cities?: any[] | null;
   city?: any;
-  lineData?: {
-    systems: any[];
-    sectionLines: any[];
-  } | null;
+  sectionLines: any[] | null;
 }
 
-function Map({ cities, city, lineData }: Props) {
+function Map({ cities, city, sectionLines }: Props) {
   const center: [number, number] = city ? parsePoint(city.coords) : [25, 0];
   const zoom = city ? 12 : 3;
 
@@ -28,7 +25,7 @@ function Map({ cities, city, lineData }: Props) {
     <MapContainer
       center={center}
       zoom={zoom}
-      scrollWheelZoom={false}
+      scrollWheelZoom={true}
       className="w-screen h-screen outline-hidden"
     >
       <TileLayer
@@ -44,12 +41,14 @@ function Map({ cities, city, lineData }: Props) {
           </Popup>
         </CircleMarker>
       ))}
-      {lineData?.sectionLines?.map((sectionLine) => (
+      {sectionLines?.map((sectionLine) => (
         <Polyline
           key={sectionLine.id}
-          pathOptions={{ color: sectionLine.Line.color }}
+          pathOptions={{ color: sectionLine.Line.color, weight: 5 }}
           positions={parseLineString(sectionLine.Section.geometry)}
-        />
+        >
+          <Popup>{sectionLine.Line?.name}</Popup>
+        </Polyline>
       ))}
     </MapContainer>
   );

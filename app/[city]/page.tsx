@@ -1,10 +1,5 @@
-import dynamic from "next/dynamic";
 import supabase from "../../utils/supabase";
-
-const Map = dynamic(() => import("../Map"), {
-  ssr: false,
-  loading: () => <div>loading...</div>,
-});
+import CityUi from "./CityUi";
 
 const fetchLineData = async (cityId: number) => {
   const { data: systems } = await supabase
@@ -32,13 +27,15 @@ const fetchLineData = async (cityId: number) => {
       `
       id,
       Section (
-        geometry
+        geometry,
+        length
       ),
       line_id,
       Line (
         name,
         color,
-        transport_mode_id
+        transport_mode_id,
+        system_id
       )
       `
     )
@@ -53,7 +50,7 @@ const fetchLineData = async (cityId: number) => {
 
   return {
     systems,
-    sectionLines,
+    sectionLines: sectionLines.filter((section) => section.Section?.length > 0),
   };
 };
 
@@ -70,8 +67,8 @@ export default async function City({ params }: { params: { city: string } }) {
   const lineData = await fetchLineData(city[0].id);
 
   return (
-    <div className="absolute z-0">
-      <Map city={city[0]} lineData={lineData} />
-    </div>
+    <>
+      <CityUi lineData={lineData} city={city[0]} />
+    </>
   );
 }
